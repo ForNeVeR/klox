@@ -6,7 +6,11 @@ SPDX-License-Identifier: MIT
 
 klox [![Status Zero][status-zero]][andivionian-status-classifier]
 ====
-klox is an interpreter for Lox, a programming language described in [Crafting Interpreters][books.crafting-interpreters]. 
+klox is an interpreter for Lox, a programming language described in [Crafting Interpreters][books.crafting-interpreters].
+
+Documentation
+-------------
+- [Contributor Guide][docs.contributing]
 
 License
 -------
@@ -17,6 +21,7 @@ The license indication in the project's sources is compliant with the [REUSE spe
 
 [andivionian-status-classifier]: https://andivionian.fornever.me/v1/#status-zero-
 [books.crafting-interpreters]: https://craftinginterpreters.com/
+[docs.contributing]: CONTRIBUTING.md
 [docs.license]: LICENSES/MIT.txt
 [reuse.spec]: https://reuse.software/spec-3.2/
 [status-zero]: https://img.shields.io/badge/status-zero-lightgrey.svg
