@@ -18,5 +18,5 @@ java {
 }
 
 application {
-    mainClass = "me.fornever.klox.AppKt"
+    mainClass = "me.fornever.klox.Lox"
 }
