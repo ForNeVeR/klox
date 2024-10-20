@@ -50,8 +50,48 @@ class Scanner(private val source: String) {
                 // Ignore whitespace.
             }
             '\n' -> line++
-            else -> Lox.error(line, "Unexpected character.")
+            '"' -> string()
+            else -> {
+                if (isDigit(c)) {
+                    number()
+                } else {
+                    Lox.error(line, "Unexpected character.")
+                }
+            }
         }
+    }
+
+    private fun number() {
+        while (isDigit(peek())) advance()
+
+        // Look for a fractional part.
+        if (peek() == '.' && isDigit(peekNext())) {
+            // Consume the "."
+            advance()
+
+            while (isDigit(peek())) advance()
+        }
+
+        addToken(NUMBER, source.substring(start, current).toDouble())
+    }
+
+    @Suppress("GrazieInspection")
+    private fun string() {
+        while (peek() != '"' && !isAtEnd()) {
+            if (peek() == '\n') line++
+            advance()
+        }
+
+        if (isAtEnd()) {
+            Lox.error(line, "Unterminated string.")
+            return
+        }
+
+        advance() // The closing ".
+
+        // Trim the surrounding quotes.
+        val value = source.substring(start + 1, current - 1)
+        addToken(STRING, value)
     }
 
     private fun match(expected: Char): Boolean {
@@ -66,6 +106,13 @@ class Scanner(private val source: String) {
         if (isAtEnd()) return '\u0000'
         return source[current]
     }
+
+    private fun peekNext(): Char {
+        if (current + 1 >= source.length) return '\u0000'
+        return source[current + 1]
+    }
+
+    private fun isDigit(c: Char): Boolean = c >= '0' && c <= '9'
 
     private fun isAtEnd() = current >= source.length
     private fun advance() = source[current++]
