@@ -34,7 +34,37 @@ class Scanner(private val source: String) {
             '+' -> addToken(PLUS)
             ';' -> addToken(SEMICOLON)
             '*' -> addToken(STAR)
+            '!' -> addToken(if (match('=')) BANG_EQUAL else BANG)
+            '=' -> addToken(if (match('=')) EQUAL_EQUAL else EQUAL)
+            '<' -> addToken(if (match('=')) LESS_EQUAL else LESS)
+            '>' -> addToken(if (match('=')) GREATER_EQUAL else GREATER)
+            '/' -> {
+                if (match('/')) {
+                    // A comment goes until the end of the line.
+                    while (peek() != '\n' && !isAtEnd()) advance()
+                } else {
+                    addToken(SLASH)
+                }
+            }
+            ' ', '\r', '\t' -> {
+                // Ignore whitespace.
+            }
+            '\n' -> line++
+            else -> Lox.error(line, "Unexpected character.")
         }
+    }
+
+    private fun match(expected: Char): Boolean {
+        if (isAtEnd()) return false
+        if (source[current] != expected) return false
+
+        current++
+        return true
+    }
+
+    private fun peek(): Char {
+        if (isAtEnd()) return '\u0000'
+        return source[current]
     }
 
     private fun isAtEnd() = current >= source.length

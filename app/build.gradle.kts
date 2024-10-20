@@ -20,3 +20,9 @@ java {
 application {
     mainClass = "me.fornever.klox.Lox"
 }
+
+tasks {
+    named<JavaExec>("run") {
+        standardInput = System.`in`
+    }
+}

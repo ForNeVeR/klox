@@ -8,6 +8,12 @@ klox [![Status Zero][status-zero]][andivionian-status-classifier]
 ====
 klox is an interpreter for Lox, a programming language described in [Crafting Interpreters][books.crafting-interpreters].
 
+Running
+-------
+```console
+$ ./gradlew run --console=plain
+```
+
 Documentation
 -------------
 - [Contributor Guide][docs.contributing]

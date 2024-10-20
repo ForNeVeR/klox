@@ -20,12 +20,6 @@ To build the application, execute this shell command:
 $ ./gradlew build
 ```
 
-### Run
-To build the application, execute this shell command:
-```console
-$ ./gradlew run
-```
-
 License Automation
 ------------------
 If the CI asks you to update the file licenses, follow one of these:
