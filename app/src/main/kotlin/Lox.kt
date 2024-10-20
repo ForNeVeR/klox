@@ -49,7 +49,7 @@ object Lox {
         }
     }
 
-    private fun error(line: Int, message: String) {
+    fun error(line: Int, message: String) {
         report(line, "", message)
     }
 
