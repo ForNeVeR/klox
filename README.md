@@ -10,8 +10,15 @@ klox is an interpreter for Lox, a programming language described in [Crafting In
 
 Running
 -------
+To run the Read-Eval-Print Loop (REPL):
 ```console
 $ ./gradlew run --console=plain
+```
+Terminate the REPL with `Ctrl+C`.
+
+To run a script from a file:
+```console
+$ ./gradlew run --args file.lox
 ```
 
 Documentation
