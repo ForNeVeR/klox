@@ -6,6 +6,28 @@ package me.fornever.klox
 import me.fornever.klox.TokenType.*
 
 class Scanner(private val source: String) {
+
+    companion object {
+        private val keywords = mapOf(
+            "and" to AND,
+            "class" to CLASS,
+            "else" to ELSE,
+            "false" to FALSE,
+            "for" to FOR,
+            "fun" to FUN,
+            "if" to IF,
+            "nil" to NIL,
+            "or" to OR,
+            "print" to PRINT,
+            "return" to RETURN,
+            "super" to SUPER,
+            "this" to THIS,
+            "true" to TRUE,
+            "var" to VAR,
+            "while" to WHILE
+        )
+    }
+
     private val tokens = mutableListOf<Token>()
     private var start = 0
     private var current = 0
@@ -54,11 +76,22 @@ class Scanner(private val source: String) {
             else -> {
                 if (isDigit(c)) {
                     number()
+                } else if (isAlpha(c)) {
+                    identifier()
                 } else {
                     Lox.error(line, "Unexpected character.")
                 }
             }
         }
+    }
+
+    private fun identifier() {
+        while (isAlphaNumeric(peek())) advance()
+
+        val text = source.substring(start, current)
+        var type = keywords[text]
+        if (type == null) type = IDENTIFIER
+        addToken(type)
     }
 
     private fun number() {
@@ -111,6 +144,9 @@ class Scanner(private val source: String) {
         if (current + 1 >= source.length) return '\u0000'
         return source[current + 1]
     }
+
+    private fun isAlpha(c: Char): Boolean = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
+    private fun isAlphaNumeric(c: Char): Boolean = isAlpha(c) || isDigit(c)
 
     private fun isDigit(c: Char): Boolean = c >= '0' && c <= '9'
 
