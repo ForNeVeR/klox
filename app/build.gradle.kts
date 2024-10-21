@@ -7,14 +7,18 @@ plugins {
     application
 }
 
-repositories {
-    mavenCentral()
-}
-
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation(kotlin("test"))
 }
 
 application {
@@ -24,5 +28,8 @@ application {
 tasks {
     named<JavaExec>("run") {
         standardInput = System.`in`
+    }
+    test {
+        useJUnitPlatform()
     }
 }
