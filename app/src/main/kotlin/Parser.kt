@@ -1,9 +1,11 @@
 package me.fornever.klox
 
-import jdk.nashorn.internal.objects.NativeFunction.call
 import me.fornever.klox.TokenType.*
 
 class Parser(private val tokens: List<Token>) {
+
+    private class ParseError() : RuntimeException()
+
     private var current = 0
 
     private fun expression() = equality()
@@ -85,6 +87,12 @@ class Parser(private val tokens: List<Token>) {
         return false
     }
 
+    private fun consume(type: TokenType, message: String): Token {
+        if (check(type)) return advance()
+
+        throw error(peek(), message)
+    }
+
     private fun check(type: TokenType): Boolean {
         if (isAtEnd()) return false
         return peek().type == type
@@ -98,4 +106,9 @@ class Parser(private val tokens: List<Token>) {
     private fun isAtEnd() = peek().type == EOF
     private fun peek() = tokens[current]
     private fun previous() = tokens[current - 1]
+
+    private fun error(token: Token, message: String): ParseError {
+        Lox.error(token, message)
+        return ParseError()
+    }
 }
