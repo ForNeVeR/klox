@@ -4,7 +4,15 @@ import me.fornever.klox.TokenType.*
 
 class Parser(private val tokens: List<Token>) {
 
-    private class ParseError() : RuntimeException()
+    fun parse(): Expr? {
+        try {
+            return expression()
+        } catch (error: ParseError) {
+            return null
+        }
+    }
+
+    private class ParseError : RuntimeException()
 
     private var current = 0
 
@@ -74,6 +82,8 @@ class Parser(private val tokens: List<Token>) {
             consume(RIGHT_PAREN, "Expect ')' after expression.")
             return Expr.Grouping(expr)
         }
+
+        throw error(peek(), "Expect expression.")
     }
 
     private fun match(vararg types: TokenType): Boolean {
@@ -110,5 +120,19 @@ class Parser(private val tokens: List<Token>) {
     private fun error(token: Token, message: String): ParseError {
         Lox.error(token, message)
         return ParseError()
+    }
+
+    private fun synchronize() {
+        advance()
+        while (!isAtEnd()) {
+            if (previous().type == SEMICOLON) return
+
+            when (peek().type) {
+                CLASS, FOR, FUN, IF, PRINT, RETURN, VAR, WHILE -> return
+                else -> {}
+            }
+        }
+
+        advance()
     }
 }

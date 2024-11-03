@@ -44,9 +44,12 @@ object Lox {
     private fun run(source: String) {
         val scanner = Scanner(source)
         val tokens = scanner.scanTokens()
-        for (token in tokens) {
-            println(token)
-        }
+        val parser = Parser(tokens)
+        val expression = parser.parse()
+
+        // Stop if there was a syntax error.
+        if (hadError) return
+        println(AstPrinter().print(expression!!))
     }
 
     fun error(line: Int, message: String) {
