@@ -25,6 +25,16 @@ class ScannerTest {
             Token(TokenType.EOF, "", null, 4)
         ), scan("( /* (\n\n\n) */ )"))
     }
+
+    @Test
+    fun `comma operator`() {
+        assertEquals(listOf(
+            Token(TokenType.IDENTIFIER, "foo", null, 1),
+            Token(TokenType.COMMA, ",", null, 1),
+            Token(TokenType.IDENTIFIER, "bar", null, 1),
+            Token(TokenType.EOF, "", null, 1)
+        ), scan("foo, bar"))
+    }
 }
 
 private fun scan(input: String): List<Token> {

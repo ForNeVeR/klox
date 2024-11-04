@@ -23,7 +23,7 @@ object Lox {
         }
     }
 
-    private var hadError = false
+    internal var hadError = false
     private fun runFile(path: String) {
         val bytes = Files.readAllBytes(Path(path))
         run(String(bytes))

@@ -8,19 +8,28 @@ import me.fornever.klox.TokenType.*
 
 class Parser(private val tokens: List<Token>) {
 
-    fun parse(): Expr? {
-        try {
-            return expression()
-        } catch (error: ParseError) {
-            return null
-        }
+    fun parse(): Expr? = try {
+        expression()
+    } catch (error: ParseError) {
+        null
     }
 
     private class ParseError : RuntimeException()
 
     private var current = 0
 
-    private fun expression() = equality()
+    private fun expression() = comma()
+    private fun comma(): Expr {
+        var expr = equality()
+        while (match(COMMA)) {
+            val operator = previous()
+            val right = equality()
+            expr = Expr.Binary(expr, operator, right)
+        }
+
+        return expr
+    }
+
     private fun equality(): Expr {
         var expr = comparison()
         while (match(BANG_EQUAL, EQUAL_EQUAL)) {
