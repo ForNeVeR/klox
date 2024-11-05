@@ -60,6 +60,8 @@ class Scanner(private val source: String) {
             '=' -> addToken(if (match('=')) EQUAL_EQUAL else EQUAL)
             '<' -> addToken(if (match('=')) LESS_EQUAL else LESS)
             '>' -> addToken(if (match('=')) GREATER_EQUAL else GREATER)
+            '?' -> addToken(QUESTION_MARK)
+            ':' -> addToken(COLON)
             '/' -> {
                 if (match('/')) {
                     // A comment goes until the end of the line.

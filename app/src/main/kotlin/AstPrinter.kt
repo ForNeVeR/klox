@@ -20,6 +20,9 @@ class AstPrinter : Visitor<String> {
     override fun visitUnaryExpr(expr: Unary): String =
         parenthesize(expr.operator.lexeme, expr.right)
 
+    override fun visitTernaryExpr(expr: Ternary): String =
+        parenthesize("?:", expr.condition, expr.ifTrue, expr.ifFalse)
+
     private fun parenthesize(name: String, vararg exprs: Expr): String =
         "($name ${exprs.joinToString(" ") { it.accept(this) }})"
 }

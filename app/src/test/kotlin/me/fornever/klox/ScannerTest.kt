@@ -35,6 +35,18 @@ class ScannerTest {
             Token(TokenType.EOF, "", null, 1)
         ), scan("foo, bar"))
     }
+
+    @Test
+    fun `ternary operator`() {
+        assertEquals(listOf(
+            Token(TokenType.IDENTIFIER, "b", null, 1),
+            Token(TokenType.QUESTION_MARK, "?", null, 1),
+            Token(TokenType.IDENTIFIER, "x", null, 1),
+            Token(TokenType.COLON, ":", null, 1),
+            Token(TokenType.IDENTIFIER, "y", null, 1),
+            Token(TokenType.EOF, "", null, 1)
+        ), scan("b ? x : y"))
+    }
 }
 
 private fun scan(input: String): List<Token> {

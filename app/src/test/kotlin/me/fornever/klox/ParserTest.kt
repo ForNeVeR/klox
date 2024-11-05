@@ -30,6 +30,17 @@ class ParserTest {
         )
     }
 
+    @Test
+    fun `ternary operator`() {
+        doTest("true ? 1 : 0",
+            Expr.Ternary(
+                Expr.Literal(true),
+                Expr.Literal(1.0),
+                Expr.Literal(0.0)
+            )
+        )
+    }
+
     private fun doTest(input: String, expectedResult: Expr) {
         try {
             val tokens = Scanner(input).scanTokens()

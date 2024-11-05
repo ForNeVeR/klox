@@ -20,11 +20,25 @@ class Parser(private val tokens: List<Token>) {
 
     private fun expression() = comma()
     private fun comma(): Expr {
-        var expr = equality()
+        var expr = ternary()
         while (match(COMMA)) {
             val operator = previous()
-            val right = equality()
+            val right = ternary()
             expr = Expr.Binary(expr, operator, right)
+        }
+
+        return expr
+    }
+
+    // TODO: Assignment operations go here.
+
+    private fun ternary(): Expr {
+        var expr = equality()
+        if (match(QUESTION_MARK)) {
+            val ifTrue = equality()
+            consume(COLON, "Expected colon in ternary expression.")
+            val ifFalse = equality()
+            expr = Expr.Ternary(expr, ifTrue, ifFalse)
         }
 
         return expr
