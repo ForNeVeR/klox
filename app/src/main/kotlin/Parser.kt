@@ -93,6 +93,9 @@ class Parser(private val tokens: List<Token>) {
             val right = unary()
             return Expr.Unary(operator, right)
         }
+        if (match(COMMA, BANG_EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MINUS, PLUS, SLASH, STAR)) {
+            error(previous(), "Binary operator should include both terms.")
+        }
 
         return primary()
     }

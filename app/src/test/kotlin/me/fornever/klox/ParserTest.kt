@@ -4,10 +4,10 @@
 
 package me.fornever.klox
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
+import java.nio.charset.StandardCharsets
+import kotlin.test.*
 
 class ParserTest {
 
@@ -39,6 +39,34 @@ class ParserTest {
                 Expr.Literal(0.0)
             )
         )
+    }
+
+    @Test
+    fun `error production`() {
+        doTestWithError(
+            "+2",
+            Expr.Literal(2.0),
+            "[line 1] Error at '+': Binary operator should include both terms.${System.lineSeparator()}")
+    }
+
+    private fun doTestWithError(input: String, expectedResult: Expr, expectedMessage: String) {
+        val output = ByteArrayOutputStream()
+        PrintStream(output, true, StandardCharsets.UTF_8).use { ps ->
+            val previousOutput = System.err
+            System.setErr(ps)
+            try {
+                val tokens = Scanner(input).scanTokens()
+                val parseResult = Parser(tokens).parse()
+                assertEquals(expectedResult, parseResult)
+                assertTrue(Lox.hadError, "Expected a parse error.")
+
+                val error = output.toString(StandardCharsets.UTF_8)
+                assertEquals(expectedMessage, error)
+            } finally {
+                Lox.hadError = false
+                System.setErr(previousOutput)
+            }
+        }
     }
 
     private fun doTest(input: String, expectedResult: Expr) {
