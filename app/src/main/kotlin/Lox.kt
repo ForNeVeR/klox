@@ -24,11 +24,13 @@ object Lox {
     }
 
     internal var hadError = false
+    private var hadRuntimeError = false
     private fun runFile(path: String) {
         val bytes = Files.readAllBytes(Path(path))
         run(String(bytes))
 
         if (hadError) exitProcess(65)
+        if (hadRuntimeError) exitProcess(70)
     }
 
     private fun runPrompt() {
@@ -68,6 +70,11 @@ object Lox {
         else {
             report(token.line, "at '${token.lexeme}'", message)
         }
+    }
+
+    fun runtimeError(error: RuntimeError) {
+        System.err.println(error.message + "\n[line: ${error.token.line}]")
+        hadRuntimeError = true
     }
 }
 
