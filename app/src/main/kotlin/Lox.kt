@@ -23,6 +23,7 @@ object Lox {
         }
     }
 
+    private val interpreter = Interpreter()
     internal var hadError = false
     private var hadRuntimeError = false
     private fun runFile(path: String) {
@@ -51,7 +52,8 @@ object Lox {
 
         // Stop if there was a syntax error.
         if (hadError) return
-        println(AstPrinter().print(expression!!))
+
+        interpreter.interpret(expression!!)
     }
 
     fun error(line: Int, message: String) {
