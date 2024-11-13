@@ -5,7 +5,6 @@
 package me.fornever.klox
 
 import me.fornever.klox.TokenType.*
-import kotlin.math.exp
 
 class Interpreter : Expr.Visitor<Any?> {
     fun interpret(expression: Expr) {
@@ -80,7 +79,7 @@ class Interpreter : Expr.Visitor<Any?> {
         null -> "nil"
         is Double -> {
             val text = obj.toString()
-            if (text.endsWith(".0")) text.substring(0..text.length - 2)
+            if (text.endsWith(".0")) text.substring(0..text.length - 3)
             else text
         }
         else -> obj.toString()
