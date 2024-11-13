@@ -10,10 +10,17 @@ import kotlin.test.assertNotNull
 
 class InterpreterTest {
     @Test
-    fun `NaN equality`() {
-        val input = "(0 / 0) == (0 / 0)"
+    fun `NaN equality`() =
+        assertInterpretation("(0 / 0) == (0 / 0)", true)
+
+    @Test
+    fun `String plus operator`() =
+        assertInterpretation("\"foo\" + 42", "foo42")
+
+    private fun <T> assertInterpretation(input: String, result: T) {
         val expr = assertNotNull(Parser(Scanner(input).scanTokens()).parse())
-        val result = expr.accept(Interpreter())
-        assertEquals(true, result)
+        val interpreter = Interpreter()
+        val evaluated = expr.accept(interpreter)
+        assertEquals(result, evaluated)
     }
 }

@@ -44,8 +44,9 @@ class Interpreter : Expr.Visitor<Any?> {
             STAR -> checkNumberOperands(expr.operator, left, right) { l, r -> l * r }
             PLUS -> when {
                 left is Double && right is Double -> left + right
-                left is String && right is String -> left + right
-                else -> throw RuntimeError(expr.operator, "Operands must be two numbers or two strings.")
+                left is String -> left + stringify(right)
+                right is String -> stringify(left) + right
+                else -> throw RuntimeError(expr.operator, "Operands must be two numbers or at least one of them should be a string.")
             }
             GREATER -> checkNumberOperands(expr.operator, left, right) { l, r -> l > r }
             GREATER_EQUAL -> checkNumberOperands(expr.operator, left, right) { l, r -> l >= r }
