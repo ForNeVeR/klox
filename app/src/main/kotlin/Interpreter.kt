@@ -40,7 +40,10 @@ class Interpreter : Expr.Visitor<Any?> {
 
         return when (expr.operator.type) {
             MINUS -> checkNumberOperands(expr.operator, left, right) { l, r -> l - r}
-            SLASH -> checkNumberOperands(expr.operator, left, right) { l, r -> l / r }
+            SLASH -> checkNumberOperands(expr.operator, left, right) { l, r ->
+                if (r == 0.0) throw RuntimeError(expr.operator, "Division by zero.")
+                l / r
+            }
             STAR -> checkNumberOperands(expr.operator, left, right) { l, r -> l * r }
             PLUS -> when {
                 left is Double && right is Double -> left + right

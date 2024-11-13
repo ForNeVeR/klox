@@ -4,9 +4,7 @@
 
 package me.fornever.klox
 
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
-import java.nio.charset.StandardCharsets
+import me.fornever.klox.testFramework.doTestWithStdErr
 import kotlin.test.*
 
 class ParserTest {
@@ -46,37 +44,29 @@ class ParserTest {
         doTestWithError(
             "+2",
             Expr.Literal(2.0),
-            "[line 1] Error at '+': Binary operator should include both terms.${System.lineSeparator()}")
+            "[line 1] Error at '+': Binary operator should include both terms.\n")
     }
 
+    @Suppress("SameParameterValue")
     private fun doTestWithError(input: String, expectedResult: Expr, expectedMessage: String) {
-        val output = ByteArrayOutputStream()
-        PrintStream(output, true, StandardCharsets.UTF_8).use { ps ->
-            val previousOutput = System.err
-            System.setErr(ps)
-            try {
-                val tokens = Scanner(input).scanTokens()
-                val parseResult = Parser(tokens).parse()
-                assertEquals(expectedResult, parseResult)
-                assertTrue(Lox.hadError, "Expected a parse error.")
-
-                val error = output.toString(StandardCharsets.UTF_8)
-                assertEquals(expectedMessage, error)
-            } finally {
-                Lox.hadError = false
-                System.setErr(previousOutput)
-            }
+        val result = doTestWithStdErr {
+            val tokens = Scanner(input).scanTokens()
+            val parseResult = Parser(tokens).parse()
+            assertEquals(expectedResult, parseResult)
         }
+
+        assertTrue(result.hadError, "Expected a parse error.")
+        assertEquals(expectedMessage, result.stdErr)
     }
 
     private fun doTest(input: String, expectedResult: Expr) {
-        try {
+        val result = doTestWithStdErr {
             val tokens = Scanner(input).scanTokens()
             val parseResult = Parser(tokens).parse()
-            assertFalse(Lox.hadError, "No parse error should be registered.")
             assertEquals(expectedResult, assertNotNull(parseResult))
-        } finally {
-            Lox.hadError = false
         }
+
+        assertFalse(result.hadError, "Expected no errors.")
+        assertEquals("", result.stdErr)
     }
 }

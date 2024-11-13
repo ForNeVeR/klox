@@ -25,7 +25,7 @@ object Lox {
 
     private val interpreter = Interpreter()
     internal var hadError = false
-    private var hadRuntimeError = false
+    internal var hadRuntimeError = false
     private fun runFile(path: String) {
         val bytes = Files.readAllBytes(Path(path))
         run(String(bytes))
