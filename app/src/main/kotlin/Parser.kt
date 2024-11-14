@@ -8,15 +8,34 @@ import me.fornever.klox.TokenType.*
 
 class Parser(private val tokens: List<Token>) {
 
-    fun parse(): Expr? = try {
-        expression()
-    } catch (error: ParseError) {
-        null
+    fun parse(): List<Stmt> {
+        val statements = mutableListOf<Stmt>()
+        while (!isAtEnd()) {
+            statements.add(statement())
+        }
+        return statements
     }
 
     private class ParseError : RuntimeException()
 
     private var current = 0
+
+    private fun statement(): Stmt {
+        if (match(PRINT)) return printStatement()
+        return expressionStatement()
+    }
+
+    private fun printStatement(): Stmt {
+        val value = expression()
+        consume(SEMICOLON, "Expect ';' after value.")
+        return Stmt.Print(value)
+    }
+
+    private fun expressionStatement(): Stmt {
+        val expr = expression()
+        consume(SEMICOLON, "Expect ';' after expression.")
+        return Stmt.Expression(expr)
+    }
 
     private fun expression() = comma()
     private fun comma(): Expr {
