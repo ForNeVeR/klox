@@ -11,6 +11,7 @@ sealed class Expr {
         fun visitLiteralExpr(expr: Literal): R
         fun visitUnaryExpr(expr: Unary): R
         fun visitTernaryExpr(expr: Ternary): R
+        fun visitVariable(expr: Variable): R
     }
 
     abstract fun <R> accept(visitor: Visitor<R>): R
@@ -36,5 +37,8 @@ sealed class Expr {
     data class Unary(val operator: Token, val right: Expr) : Expr() {
         override fun <R> accept(visitor: Visitor<R>): R =
             visitor.visitUnaryExpr(this)
+    }
+    data class Variable(val name: Token) : Expr() {
+        override fun <R> accept(visitor: Visitor<R>) = visitor.visitVariable(this)
     }
 }
