@@ -4,19 +4,33 @@
 
 package me.fornever.klox
 
+import jdk.javadoc.internal.tool.Main.execute
 import me.fornever.klox.TokenType.*
 
-class Interpreter : Expr.Visitor<Any?> {
-    fun interpret(expression: Expr) {
+class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
+    fun interpret(statements: List<Stmt>) {
         try {
-            val value = evaluate(expression)
-            println(stringify(value))
+            for (statement in statements) {
+                execute(statement)
+            }
         } catch (error: RuntimeError) {
             Lox.runtimeError(error)
         }
     }
 
     private fun evaluate(expr: Expr) = expr.accept(this)
+    private fun execute(stmt: Stmt) = stmt.accept(this)
+
+    override fun visitExpressionStmt(stmt: Stmt.Expression): Nothing? {
+        evaluate(stmt.expression)
+        return null
+    }
+
+    override fun visitPrintStmt(stmt: Stmt.Print): Nothing? {
+        val value = evaluate(stmt.expression)
+        println(stringify(value))
+        return null
+    }
 
     override fun visitLiteralExpr(expr: Expr.Literal) = expr.value
     override fun visitGroupingExpr(expr: Expr.Grouping) = evaluate(expr.expression)

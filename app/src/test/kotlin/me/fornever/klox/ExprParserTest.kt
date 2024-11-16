@@ -7,7 +7,7 @@ package me.fornever.klox
 import me.fornever.klox.testFramework.doTestWithStdErr
 import kotlin.test.*
 
-class ParserTest {
+class ExprParserTest {
 
     @Test
     fun `comma operator`() {
@@ -50,8 +50,8 @@ class ParserTest {
     @Suppress("SameParameterValue")
     private fun doTestWithError(input: String, expectedResult: Expr, expectedMessage: String) {
         val result = doTestWithStdErr {
-            val tokens = Scanner(input).scanTokens()
-            val parseResult = Parser(tokens).parse()
+            val tokens = Scanner("$input;").scanTokens()
+            val parseResult = (Parser(tokens).parse().single() as Stmt.Expression).expression
             assertEquals(expectedResult, parseResult)
         }
 
@@ -61,8 +61,8 @@ class ParserTest {
 
     private fun doTest(input: String, expectedResult: Expr) {
         val result = doTestWithStdErr {
-            val tokens = Scanner(input).scanTokens()
-            val parseResult = Parser(tokens).parse()
+            val tokens = Scanner("$input;").scanTokens()
+            val parseResult = (Parser(tokens).parse().single() as Stmt.Expression).expression
             assertEquals(expectedResult, assertNotNull(parseResult))
         }
 
