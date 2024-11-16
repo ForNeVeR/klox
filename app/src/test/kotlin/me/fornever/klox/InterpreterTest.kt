@@ -19,7 +19,8 @@ class InterpreterTest {
     @Suppress("SameParameterValue")
     private fun <T> assertInterpretation(input: String, expectedResult: T) {
         val result = doTestWithStdErr {
-            val expr = assertNotNull(Parser(Scanner(input).scanTokens()).parse())
+            val stmt = Parser(Scanner("$input;").scanTokens()).parse().single()
+            val expr = assertNotNull((stmt as Stmt.Expression).expression)
             val interpreter = Interpreter()
             val evaluated = expr.accept(interpreter)
             assertEquals(expectedResult, evaluated)
@@ -32,7 +33,7 @@ class InterpreterTest {
     @Suppress("SameParameterValue")
     private fun assertInterpretationError(input: String, error: String) {
         val result = doTestWithStdErr {
-            val expr = assertNotNull(Parser(Scanner(input).scanTokens()).parse())
+            val expr = assertNotNull(Parser(Scanner("$input;").scanTokens()).parse())
             val interpreter = Interpreter()
             interpreter.interpret(expr)
         }
