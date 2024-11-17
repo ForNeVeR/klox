@@ -4,10 +4,12 @@
 
 package me.fornever.klox
 
-import jdk.javadoc.internal.tool.Main.execute
 import me.fornever.klox.TokenType.*
 
 class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
+
+    private val environment = Environment()
+
     fun interpret(statements: List<Stmt>) {
         try {
             for (statement in statements) {
@@ -32,6 +34,12 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         return null
     }
 
+    override fun visitVarStmt(stmt: Stmt.Var): Nothing? {
+        val value = stmt.initializer?.let(::evaluate)
+        environment.define(stmt.name.lexeme, value)
+        return null
+    }
+
     override fun visitLiteralExpr(expr: Expr.Literal) = expr.value
     override fun visitGroupingExpr(expr: Expr.Grouping) = evaluate(expr.expression)
     override fun visitUnaryExpr(expr: Expr.Unary): Any? {
@@ -42,6 +50,8 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
             else -> null // Unreachable.
         }
     }
+
+    override fun visitVariable(expr: Expr.Variable) = environment.get(expr.name)
 
     private fun checkNumberOperand(operator: Token, operand: Any?): Double {
         if (operand is Double) return operand

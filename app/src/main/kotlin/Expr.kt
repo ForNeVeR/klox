@@ -6,6 +6,7 @@ package me.fornever.klox
 
 sealed class Expr {
     interface Visitor<R> {
+        fun visitAssignExpr(expr: Assign): R
         fun visitBinaryExpr(expr: Binary): R
         fun visitGroupingExpr(expr: Grouping): R
         fun visitLiteralExpr(expr: Literal): R
@@ -15,6 +16,11 @@ sealed class Expr {
     }
 
     abstract fun <R> accept(visitor: Visitor<R>): R
+
+    data class Assign(val name: Token, val value: Expr) : Expr() {
+        override fun <R> accept(visitor: Visitor<R>) =
+            visitor.visitAssignExpr(this)
+    }
 
     data class Ternary(val condition: Expr, val ifTrue: Expr, val ifFalse: Expr) : Expr() {
         override fun <R> accept(visitor: Visitor<R>) =

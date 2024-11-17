@@ -60,17 +60,30 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private fun comma(): Expr {
-        var expr = ternary()
+        var expr = assignment()
         while (match(COMMA)) {
             val operator = previous()
-            val right = ternary()
+            val right = assignment()
             expr = Expr.Binary(expr, operator, right)
         }
 
         return expr
     }
 
-    // TODO: Assignment operations go here.
+    private fun assignment(): Expr {
+        val expr = ternary()
+        if (match(EQUAL)) {
+            val equals = previous()
+            val value = assignment()
+            if (expr is Expr.Variable) {
+                return Expr.Assign(expr.name, value)
+            }
+
+            error(equals, "Invalid assignment target.")
+        }
+
+        return expr
+    }
 
     private fun ternary(): Expr {
         var expr = equality()
