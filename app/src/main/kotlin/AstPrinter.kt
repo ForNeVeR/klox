@@ -9,6 +9,9 @@ import me.fornever.klox.Expr.*
 class AstPrinter : Visitor<String> {
     fun print(expr: Expr) = expr.accept(this)
 
+    override fun visitAssignExpr(expr: Assign) =
+        parenthesize("assign ${expr.name.lexeme}", expr.value)
+
     override fun visitBinaryExpr(expr: Binary): String =
         parenthesize(expr.operator.lexeme, expr.left, expr.right)
     override fun visitGroupingExpr(expr: Grouping): String =
