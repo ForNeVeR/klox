@@ -40,6 +40,12 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         return null
     }
 
+    override fun visitAssignExpr(expr: Expr.Assign): Any? {
+        val value = evaluate(expr.value)
+        environment.assign(expr.name, value)
+        return value
+    }
+
     override fun visitLiteralExpr(expr: Expr.Literal) = expr.value
     override fun visitGroupingExpr(expr: Expr.Grouping) = evaluate(expr.expression)
     override fun visitUnaryExpr(expr: Expr.Unary): Any? {
