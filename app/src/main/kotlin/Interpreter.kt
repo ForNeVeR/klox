@@ -8,7 +8,7 @@ import me.fornever.klox.TokenType.*
 
 class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
 
-    private val environment = Environment()
+    private var environment = Environment()
 
     fun interpret(statements: List<Stmt>) {
         try {
@@ -22,6 +22,23 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
 
     private fun evaluate(expr: Expr) = expr.accept(this)
     private fun execute(stmt: Stmt) = stmt.accept(this)
+
+    private fun executeBlock(statements: List<Stmt>, environment: Environment) {
+        val previous = this.environment
+        try {
+            this.environment = environment
+            for (statement in statements) {
+                execute(statement)
+            }
+        } finally {
+            this.environment = previous
+        }
+    }
+
+    override fun visitBlock(stmt: Stmt.Block): Nothing? {
+        executeBlock(stmt.statements, Environment(environment))
+        return null
+    }
 
     override fun visitExpressionStmt(stmt: Stmt.Expression): Nothing? {
         evaluate(stmt.expression)
