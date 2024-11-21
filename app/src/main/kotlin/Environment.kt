@@ -5,9 +5,15 @@
 package me.fornever.klox
 
 class Environment(private val enclosing: Environment? = null) {
+    private val declaredVariables = mutableSetOf<String>()
     private val values = mutableMapOf<String, Any?>()
 
+    fun declare(name: String) {
+        declaredVariables.add(name)
+    }
+
     fun define(name: String, value: Any?) {
+        declaredVariables.add(name)
         values[name] = value
     }
 
@@ -18,8 +24,9 @@ class Environment(private val enclosing: Environment? = null) {
         }
 
     fun assign(name: Token, value: Any?) {
-        if (values.containsKey(name.lexeme)) {
-            values[name.lexeme] = value
+        val varName = name.lexeme
+        if (declaredVariables.contains(varName) || values.containsKey(varName)) {
+            values[varName] = value
             return
         }
 
@@ -28,6 +35,6 @@ class Environment(private val enclosing: Environment? = null) {
             return
         }
 
-        throw RuntimeError(name, "Undefined variable '${name.lexeme}'.")
+        throw RuntimeError(name, "Undefined variable '${varName}'.")
     }
 }

@@ -55,8 +55,13 @@ object Lox {
         val tokens = scanner.scanTokens()
         val expr = tryParseExpression(tokens)
         if (expr != null) {
-            val result = expr.accept(interpreter)
-            println(interpreter.stringify(result))
+            try {
+                val result = expr.accept(interpreter)
+                println(interpreter.stringify(result))
+            } catch (err: RuntimeError) {
+                runtimeError(err)
+            }
+
             return
         }
 

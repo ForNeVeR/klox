@@ -52,8 +52,15 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
     }
 
     override fun visitVarStmt(stmt: Stmt.Var): Nothing? {
-        val value = stmt.initializer?.let(::evaluate)
-        environment.define(stmt.name.lexeme, value)
+        val name = stmt.name.lexeme
+        val initializer = stmt.initializer
+        if (initializer != null) {
+            val value = evaluate(initializer)
+            environment.define(name, value)
+        } else {
+            environment.declare(name)
+        }
+
         return null
     }
 
