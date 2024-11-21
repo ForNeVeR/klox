@@ -39,7 +39,7 @@ object Lox {
         while (true) {
             print("> ")
             val line = input.readLine() ?: break
-            run(line)
+            runOrEval(line)
             hadError = false
         }
     }
@@ -47,6 +47,39 @@ object Lox {
     private fun run(source: String) {
         val scanner = Scanner(source)
         val tokens = scanner.scanTokens()
+        run(tokens)
+    }
+
+    private fun runOrEval(source: String) {
+        val scanner = Scanner(source)
+        val tokens = scanner.scanTokens()
+        val expr = tryParseExpression(tokens)
+        if (expr != null) {
+            val result = expr.accept(interpreter)
+            println(interpreter.stringify(result))
+            return
+        }
+
+        run(tokens)
+    }
+
+    private var silent = false
+    private fun tryParseExpression(tokens: List<Token>): Expr? {
+        val parser = Parser(tokens)
+        var result: Expr? = null
+        try {
+            silent = true
+            result = parser.parseExpression()
+        } catch (e: Parser.ParseError) {
+            // ignore
+        } finally {
+            silent = false
+        }
+
+        return result
+    }
+
+    private fun run(tokens: List<Token>) {
         val parser = Parser(tokens)
         val statements = parser.parse()
 
@@ -61,6 +94,7 @@ object Lox {
     }
 
     private fun report(line: Int, where: String, message: String) {
+        if (silent) return
         System.err.println("[line $line] Error $where: $message")
         hadError = true
     }

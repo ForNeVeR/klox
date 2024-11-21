@@ -18,7 +18,11 @@ class Parser(private val tokens: List<Token>) {
         return statements
     }
 
-    private class ParseError : RuntimeException()
+    fun parseExpression(): Expr {
+        return expression()
+    }
+
+    class ParseError : RuntimeException()
 
     private var current = 0
 

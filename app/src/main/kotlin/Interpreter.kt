@@ -126,7 +126,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
 
     private fun isEqual(left: Any?, right: Any?): Boolean = left == right
 
-    private fun stringify(obj: Any?) = when (obj) {
+    fun stringify(obj: Any?) = when (obj) {
         null -> "nil"
         is Double -> {
             val text = obj.toString()
