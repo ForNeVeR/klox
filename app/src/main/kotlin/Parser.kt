@@ -27,9 +27,22 @@ class Parser(private val tokens: List<Token>) {
     private var current = 0
 
     private fun statement(): Stmt {
+        if (match(IF)) return ifStatement()
         if (match(PRINT)) return printStatement()
         if (match(LEFT_BRACE)) return Stmt.Block(block())
         return expressionStatement()
+    }
+
+    private fun ifStatement(): Stmt {
+        consume(LEFT_PAREN, "Expect '(' after 'if'.")
+        val condition = expression()
+        consume(RIGHT_PAREN, "Expect ')' after condition.")
+
+        val thenBranch = statement()
+        var elseBranch: Stmt? = null
+        if (match(ELSE)) elseBranch = statement()
+
+        return Stmt.If(condition, thenBranch, elseBranch)
     }
 
     private fun printStatement(): Stmt {
@@ -102,12 +115,34 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private fun ternary(): Expr {
-        var expr = equality()
+        var expr = or()
         if (match(QUESTION_MARK)) {
             val ifTrue = equality()
             consume(COLON, "Expected colon in ternary expression.")
             val ifFalse = equality()
             expr = Expr.Ternary(expr, ifTrue, ifFalse)
+        }
+
+        return expr
+    }
+
+    private fun or(): Expr {
+        var expr = and()
+        while (match(OR)) {
+            val operator = previous()
+            val right = and()
+            expr = Expr.Logical(expr, operator, right)
+        }
+
+        return expr
+    }
+
+    private fun and(): Expr {
+        var expr = equality()
+        while (match(AND)) {
+            val operator = previous()
+            val right = equality()
+            expr = Expr.Logical(expr, operator, right)
         }
 
         return expr
