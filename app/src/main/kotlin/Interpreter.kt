@@ -74,6 +74,14 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         return null
     }
 
+    override fun visitWhileStmt(stmt: Stmt.While): Nothing? {
+        while (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.body)
+        }
+
+        return null
+    }
+
     override fun visitAssignExpr(expr: Expr.Assign): Any? {
         val value = evaluate(expr.value)
         environment.assign(expr.name, value)
