@@ -20,6 +20,7 @@ class AstPrinter : Visitor<String> {
         null -> "nil"
         else -> expr.value.toString()
     }
+    override fun visitLogicalExpr(expr: Logical) = parenthesize(expr.operator.lexeme, expr.left, expr.right)
     override fun visitUnaryExpr(expr: Unary): String =
         parenthesize(expr.operator.lexeme, expr.right)
 
