@@ -4,7 +4,7 @@
 
 package me.fornever.klox
 
-import me.fornever.klox.testFramework.doTestWithStdErr
+import me.fornever.klox.testFramework.doTestWithStdIo
 import kotlin.test.*
 
 class ExprParserTest {
@@ -49,7 +49,7 @@ class ExprParserTest {
 
     @Suppress("SameParameterValue")
     private fun doTestWithError(input: String, expectedResult: Expr, expectedMessage: String) {
-        val result = doTestWithStdErr {
+        val result = doTestWithStdIo {
             val tokens = Scanner("$input;").scanTokens()
             val parseResult = (Parser(tokens).parse().single() as Stmt.Expression).expression
             assertEquals(expectedResult, parseResult)
@@ -60,7 +60,7 @@ class ExprParserTest {
     }
 
     private fun doTest(input: String, expectedResult: Expr) {
-        val result = doTestWithStdErr {
+        val result = doTestWithStdIo {
             val tokens = Scanner("$input;").scanTokens()
             val parseResult = (Parser(tokens).parse().single() as Stmt.Expression).expression
             assertEquals(expectedResult, assertNotNull(parseResult))

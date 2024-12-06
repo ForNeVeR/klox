@@ -9,20 +9,47 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
 
-data class SideEffects(val stdErr: String, val hadError: Boolean, val hadRuntimeError: Boolean)
+data class SideEffects(
+    val stdOut: String,
+    val stdErr: String,
+    val hadError: Boolean,
+    val hadRuntimeError: Boolean
+)
 
-fun doTestWithStdErr(action: () -> Unit): SideEffects {
-    val output = ByteArrayOutputStream()
-    PrintStream(output, true, StandardCharsets.UTF_8).use { ps ->
-        val previousOutput = System.err
-        System.setErr(ps)
-        try {
-            action()
-            val error = output.toString(StandardCharsets.UTF_8).replace("\r\n", "\n")
-            return SideEffects(error, Lox.hadError, Lox.hadRuntimeError)
-        } finally {
-            Lox.hadError = false
-            System.setErr(previousOutput)
+fun doTestWithStdIo(action: () -> Unit): SideEffects {
+    var hadError = false
+    var hadRuntimeError = false
+    lateinit var stdOut: String
+    val stdErr = withStreamOverride(System.err, System::setErr) {
+        stdOut = withStreamOverride(System.out, System::setOut) {
+            try {
+                action()
+                hadError = Lox.hadError
+                hadRuntimeError = Lox.hadRuntimeError
+            } finally {
+                Lox.hadError = false
+                Lox.hadRuntimeError = false
+            }
         }
     }
+
+    return SideEffects(stdOut, stdErr, hadError, hadRuntimeError)
+}
+
+private fun withStreamOverride(
+    previousStream: PrintStream,
+    setter: (PrintStream) -> Unit,
+    action: () -> Unit
+): String {
+    val output = ByteArrayOutputStream()
+    PrintStream(output, true, StandardCharsets.UTF_8).use { ps ->
+        setter(ps)
+        try {
+            action()
+        } finally {
+            setter(previousStream)
+        }
+    }
+
+    return output.toString(StandardCharsets.UTF_8).replace("\r\n", "\n")
 }
