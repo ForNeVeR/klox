@@ -12,6 +12,7 @@ sealed class Stmt {
         fun visitPrintStmt(stmt: Print): R
         fun visitVarStmt(stmt: Var): R
         fun visitWhileStmt(stmt: While): R
+        fun visitBreakStmt(stmt: Break): R
     }
 
     abstract fun <R> accept(visitor: Visitor<R>): R
@@ -33,5 +34,8 @@ sealed class Stmt {
     }
     data class While(val condition: Expr, val body: Stmt) : Stmt() {
         override fun <R> accept(visitor: Visitor<R>) = visitor.visitWhileStmt(this)
+    }
+    data class Break(val keyword: Token) : Stmt() {
+        override fun <R> accept(visitor: Visitor<R>) = visitor.visitBreakStmt(this)
     }
 }

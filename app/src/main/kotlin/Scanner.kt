@@ -10,6 +10,7 @@ class Scanner(private val source: String) {
     companion object {
         private val keywords = mapOf(
             "and" to AND,
+            "break" to BREAK,
             "class" to CLASS,
             "else" to ELSE,
             "false" to FALSE,

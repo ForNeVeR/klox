@@ -74,12 +74,21 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         return null
     }
 
+    private class BreakException : Exception()
     override fun visitWhileStmt(stmt: Stmt.While): Nothing? {
         while (isTruthy(evaluate(stmt.condition))) {
-            execute(stmt.body)
+            try {
+                execute(stmt.body)
+            } catch (_: BreakException) {
+                break
+            }
         }
 
         return null
+    }
+
+    override fun visitBreakStmt(stmt: Stmt.Break): Nothing? {
+        throw BreakException()
     }
 
     override fun visitAssignExpr(expr: Expr.Assign): Any? {

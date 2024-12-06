@@ -27,6 +27,7 @@ class Parser(private val tokens: List<Token>) {
     private var current = 0
 
     private fun statement(): Stmt {
+        if (match(BREAK)) return breakStatement()
         if (match(FOR)) return forStatement()
         if (match(IF)) return ifStatement()
         if (match(PRINT)) return printStatement()
@@ -34,6 +35,9 @@ class Parser(private val tokens: List<Token>) {
         if (match(LEFT_BRACE)) return Stmt.Block(block())
         return expressionStatement()
     }
+
+    private fun breakStatement() =
+        Stmt.Break(consume(SEMICOLON, "Expect ';' after 'break'."))
 
     private fun forStatement(): Stmt {
         consume(LEFT_PAREN, "Expect '(' after 'for'.")

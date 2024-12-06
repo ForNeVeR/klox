@@ -54,9 +54,9 @@ class InterpreterTest {
 
     private fun assertOutput(input: String, @Suppress("SameParameterValue") expectedOutput: String) {
         val result = doTestWithStdIo {
-            val expr = assertNotNull(Parser(Scanner("$input;").scanTokens()).parse())
+            val statements = assertNotNull(Parser(Scanner(input).scanTokens()).parse())
             val interpreter = Interpreter()
-            interpreter.interpret(expr)
+            interpreter.interpret(statements)
         }
 
         assertEquals("", result.stdErr)
