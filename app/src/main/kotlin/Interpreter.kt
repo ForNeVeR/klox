@@ -153,6 +153,15 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         }
     }
 
+    override fun visitCallExpr(expr: Expr.Call): Any? {
+        val callee = evaluate(expr.callee)
+        val arguments = expr.arguments.map { evaluate(it) }
+        return when (callee) {
+            is LoxCallable -> callee.call(this, arguments)
+            else -> throw RuntimeError(expr.paren, "Can only call functions and classes.")
+        }
+    }
+
     private fun <T> checkNumberOperands(operator: Token, left: Any?, right: Any?, callback: (Double, Double) -> T): T {
         if (left is Double && right is Double) return callback(left, right)
         throw RuntimeError(operator, "Operands must be numbers.")
