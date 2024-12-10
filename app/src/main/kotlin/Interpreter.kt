@@ -8,7 +8,16 @@ import me.fornever.klox.TokenType.*
 
 class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
 
-    private var environment = Environment()
+    private val globals = Environment().apply {
+        define("clock", object : LoxCallable {
+            override val arity = 0
+            override fun call(interpreter: Interpreter, arguments: List<Any?>): Double {
+                return System.currentTimeMillis() / 1000.0
+            }
+            override fun toString() = "<native fn>"
+        })
+    }
+    private var environment = globals
 
     fun interpret(statements: List<Stmt>) {
         try {
@@ -157,7 +166,13 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         val callee = evaluate(expr.callee)
         val arguments = expr.arguments.map { evaluate(it) }
         return when (callee) {
-            is LoxCallable -> callee.call(this, arguments)
+            is LoxCallable -> {
+                if (arguments.size != callee.arity) {
+                    throw RuntimeError(expr.paren, "Expected ${callee.arity} arguments but got ${arguments.size}.")
+                }
+
+                callee.call(this, arguments)
+            }
             else -> throw RuntimeError(expr.paren, "Can only call functions and classes.")
         }
     }
