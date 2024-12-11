@@ -8,7 +8,7 @@ import me.fornever.klox.TokenType.*
 
 class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
 
-    private val globals = Environment().apply {
+    internal val globals = Environment().apply {
         define("clock", object : LoxCallable {
             override val arity = 0
             override fun call(interpreter: Interpreter, arguments: List<Any?>): Double {
@@ -32,7 +32,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
     private fun evaluate(expr: Expr) = expr.accept(this)
     private fun execute(stmt: Stmt) = stmt.accept(this)
 
-    private fun executeBlock(statements: List<Stmt>, environment: Environment) {
+    internal fun executeBlock(statements: List<Stmt>, environment: Environment) {
         val previous = this.environment
         try {
             this.environment = environment
