@@ -54,6 +54,12 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         return null
     }
 
+    override fun visitFunctionStmt(stmt: Stmt.Function): Nothing? {
+        val function = LoxFunction(stmt)
+        environment.define(stmt.name.lexeme, function)
+        return null
+    }
+
     override fun visitIfStmt(stmt: Stmt.If): Nothing? {
         if (isTruthy(evaluate(stmt.condition))) {
             execute(stmt.thenBranch)

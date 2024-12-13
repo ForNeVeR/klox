@@ -11,6 +11,7 @@ sealed class Stmt {
         fun visitFunctionStmt(stmt: Function): R
         fun visitIfStmt(stmt: If): R
         fun visitPrintStmt(stmt: Print): R
+        fun visitReturnStmt(stmt: Return): R
         fun visitVarStmt(stmt: Var): R
         fun visitWhileStmt(stmt: While): R
         fun visitBreakStmt(stmt: Break): R
@@ -32,6 +33,9 @@ sealed class Stmt {
     }
     data class Print(val expression: Expr) : Stmt() {
         override fun <R> accept(visitor: Visitor<R>) = visitor.visitPrintStmt(this)
+    }
+    data class Return(val keyword: Token, val value: Expr?): Stmt() {
+        override fun <R> accept(visitor: Visitor<R>) = visitor.visitReturnStmt(this)
     }
     data class Var(val name: Token, val initializer: Expr?) : Stmt() {
         override fun <R> accept(visitor: Visitor<R>) = visitor.visitVarStmt(this)
