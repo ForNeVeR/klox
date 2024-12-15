@@ -76,6 +76,11 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         return null
     }
 
+    override fun visitReturnStmt(stmt: Stmt.Return): Nothing? {
+        val value = stmt.value?.let(::evaluate)
+        throw Return(value)
+    }
+
     override fun visitVarStmt(stmt: Stmt.Var): Nothing? {
         val name = stmt.name.lexeme
         val initializer = stmt.initializer
@@ -161,7 +166,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
             GREATER -> checkNumberOperands(expr.operator, left, right) { l, r -> l > r }
             GREATER_EQUAL -> checkNumberOperands(expr.operator, left, right) { l, r -> l >= r }
             LESS -> checkNumberOperands(expr.operator, left, right) { l, r -> l < r }
-            LESS_EQUAL -> checkNumberOperands(expr.operator, left, right) { l, r -> l >= r}
+            LESS_EQUAL -> checkNumberOperands(expr.operator, left, right) { l, r -> l <= r}
             BANG_EQUAL -> !isEqual(left, right)
             EQUAL_EQUAL -> isEqual(left, right)
             else -> null // Unreachable.

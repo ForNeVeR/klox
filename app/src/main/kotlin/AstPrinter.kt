@@ -12,6 +12,8 @@ class AstPrinter : Visitor<String> {
     override fun visitAssignExpr(expr: Assign) =
         parenthesize("assign ${expr.name.lexeme}", expr.value)
 
+    override fun visitCallExpr(expr: Call) =
+        print(expr.callee) + expr.arguments.joinToString { print(it) }
     override fun visitBinaryExpr(expr: Binary): String =
         parenthesize(expr.operator.lexeme, expr.left, expr.right)
     override fun visitGroupingExpr(expr: Grouping): String =
