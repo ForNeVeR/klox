@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Friedrich von Never <friedrich@fornever.me>
+//
+// SPDX-License-Identifier: MIT
+
 package me.fornever.klox
 
 class LoxFunction(private val declaration: Stmt.Function, private val closure: Environment) : LoxCallable {
