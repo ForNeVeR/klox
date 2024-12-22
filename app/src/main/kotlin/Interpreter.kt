@@ -55,7 +55,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
     }
 
     override fun visitFunctionStmt(stmt: Stmt.Function): Nothing? {
-        val function = LoxFunction(stmt)
+        val function = LoxFunction(stmt, environment)
         environment.define(stmt.name.lexeme, function)
         return null
     }
