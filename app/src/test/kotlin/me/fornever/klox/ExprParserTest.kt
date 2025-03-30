@@ -40,6 +40,11 @@ class ExprParserTest {
     }
 
     @Test
+    fun `anonymous function`() {
+        doTest("fun (a) {\n  print a;\n}", Expr.AnonymousFunction())
+    }
+
+    @Test
     fun `error production`() {
         doTestWithError(
             "+2",

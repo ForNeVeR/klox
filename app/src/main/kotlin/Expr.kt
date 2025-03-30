@@ -15,6 +15,7 @@ sealed class Expr {
         fun visitUnaryExpr(expr: Unary): R
         fun visitTernaryExpr(expr: Ternary): R
         fun visitVariable(expr: Variable): R
+        fun visitAnonymousFunction(expr: AnonymousFunction): R
     }
 
     abstract fun <R> accept(visitor: Visitor<R>): R
@@ -45,5 +46,8 @@ sealed class Expr {
     }
     data class Variable(val name: Token) : Expr() {
         override fun <R> accept(visitor: Visitor<R>) = visitor.visitVariable(this)
+    }
+    data class AnonymousFunction(val parameters: List<Token>, val body: List<Stmt>): Expr() {
+        override fun <R> accept(visitor: Visitor<R>) = visitor.visitAnonymousFunction(this)
     }
 }

@@ -30,6 +30,8 @@ class AstPrinter : Visitor<String> {
         parenthesize("?:", expr.condition, expr.ifTrue, expr.ifFalse)
 
     override fun visitVariable(expr: Variable): String = expr.name.lexeme
+    override fun visitAnonymousFunction(expr: AnonymousFunction): String =
+        "fun ${expr.parameters.joinToString()} { [BODY] }"
 
     private fun parenthesize(name: String, vararg exprs: Expr): String =
         "($name ${exprs.joinToString(" ") { it.accept(this) }})"

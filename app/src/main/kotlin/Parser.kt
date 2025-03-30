@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Friedrich von Never <friedrich@fornever.me>
+// SPDX-FileCopyrightText: 2024-2025 Friedrich von Never <friedrich@fornever.me>
 //
 // SPDX-License-Identifier: MIT
 
@@ -127,7 +127,14 @@ class Parser(private val tokens: List<Token>) {
 
     private fun function(@Suppress("SameParameterValue") kind: String): Stmt {
         val name = consume(IDENTIFIER, "Expect $kind name.")
-        consume(LEFT_PAREN, "Expect '(' after $kind name.")
+        val definition = functionDefinition("$name function")
+        return Stmt.Function(name, definition.parameters, definition.body)
+    }
+
+    private data class FunctionDefinition(val parameters: List<Token>, val body: List<Stmt>)
+
+    private fun functionDefinition(diagnosticName: String): FunctionDefinition {
+        consume(LEFT_PAREN, "Expect '(' after $diagnosticName declaration.")
         val parameters = mutableListOf<Token>()
         if (!check(RIGHT_PAREN)) {
             do {
@@ -138,9 +145,9 @@ class Parser(private val tokens: List<Token>) {
             } while (match(COMMA))
         }
         consume(RIGHT_PAREN, "Expect ')' after parameters.")
-        consume(LEFT_BRACE, "Expect '{' before $kind body.")
+        consume(LEFT_BRACE, "Expect '{' before $diagnosticName body.")
         val body = block()
-        return Stmt.Function(name, parameters, body)
+        return FunctionDefinition(parameters, body)
     }
 
     private fun block(): List<Stmt> {
@@ -160,7 +167,7 @@ class Parser(private val tokens: List<Token>) {
             if (match(FUN)) return function("function")
             if (match(VAR)) return varDeclaration()
             return statement()
-        } catch (error: ParseError) {
+        } catch (_: ParseError) {
             synchronize()
             return null
         }
@@ -315,6 +322,7 @@ class Parser(private val tokens: List<Token>) {
         if (match(FALSE)) return Expr.Literal(false)
         if (match(TRUE)) return Expr.Literal(true)
         if (match(NIL)) return Expr.Literal(null)
+        if (match(FUN)) return anonymousFunction()
 
         if (match(NUMBER, STRING)) return Expr.Literal(previous().literal)
 
@@ -327,6 +335,11 @@ class Parser(private val tokens: List<Token>) {
         }
 
         throw error(peek(), "Expect expression.")
+    }
+
+    private fun anonymousFunction(): Expr.AnonymousFunction {
+        val definition = functionDefinition("anonymous function")
+        return Expr.AnonymousFunction(definition.parameters, definition.body)
     }
 
     private fun match(vararg types: TokenType): Boolean {
