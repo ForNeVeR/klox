@@ -387,8 +387,7 @@ class Parser(private val tokens: List<Token>) {
                 CLASS, FOR, FUN, IF, PRINT, RETURN, VAR, WHILE -> return
                 else -> {}
             }
+            advance()
         }
-
-        advance()
     }
 }
