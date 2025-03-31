@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Friedrich von Never <friedrich@fornever.me>
+// SPDX-FileCopyrightText: 2024-2025 Friedrich von Never <friedrich@fornever.me>
 //
 // SPDX-License-Identifier: MIT
 
@@ -25,6 +25,19 @@ class InterpreterTest {
             if (a == 5) break;
         }
     """.trimIndent(), "1\n2\n3\n4\n5\n")
+
+    @Test
+    fun `anonymous function passing`() = assertOutput("""
+        fun thrice(fn) {
+            for (var i = 1; i <= 3; i = i + 1) {
+                fn(i);
+            }
+        }
+
+        thrice(fun (a) {
+            print a;
+        });
+    """.trimIndent(), "1\n2\n3\n")
 
     @Suppress("SameParameterValue")
     private fun <T> assertInterpretation(input: String, expectedResult: T) {
