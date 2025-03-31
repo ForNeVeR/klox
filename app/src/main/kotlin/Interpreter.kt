@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Friedrich von Never <friedrich@fornever.me>
+// SPDX-FileCopyrightText: 2024-2025 Friedrich von Never <friedrich@fornever.me>
 //
 // SPDX-License-Identifier: MIT
 
@@ -140,6 +140,9 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
     }
 
     override fun visitVariable(expr: Expr.Variable) = environment.get(expr.name)
+
+    override fun visitAnonymousFunction(expr: Expr.AnonymousFunction) =
+        LoxFunction(expr, environment)
 
     private fun checkNumberOperand(operator: Token, operand: Any?): Double {
         if (operand is Double) return operand

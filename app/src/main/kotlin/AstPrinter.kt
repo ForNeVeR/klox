@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Friedrich von Never <friedrich@fornever.me>
+// SPDX-FileCopyrightText: 2024-2025 Friedrich von Never <friedrich@fornever.me>
 //
 // SPDX-License-Identifier: MIT
 
@@ -31,7 +31,7 @@ class AstPrinter : Visitor<String> {
 
     override fun visitVariable(expr: Variable): String = expr.name.lexeme
     override fun visitAnonymousFunction(expr: AnonymousFunction): String =
-        "fun ${expr.parameters.joinToString()} { [BODY] }"
+        "fun ${expr.params.joinToString()} { [BODY] }"
 
     private fun parenthesize(name: String, vararg exprs: Expr): String =
         "($name ${exprs.joinToString(" ") { it.accept(this) }})"

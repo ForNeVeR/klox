@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Friedrich von Never <friedrich@fornever.me>
+// SPDX-FileCopyrightText: 2024-2025 Friedrich von Never <friedrich@fornever.me>
 //
 // SPDX-License-Identifier: MIT
 
@@ -41,7 +41,13 @@ class ExprParserTest {
 
     @Test
     fun `anonymous function`() {
-        doTest("fun (a) {\n  print a;\n}", Expr.AnonymousFunction())
+        doTest(
+            "fun (a) {\n  print a;\n}",
+            Expr.AnonymousFunction(
+                listOf(Token(TokenType.IDENTIFIER, "a", null, 1)),
+                listOf(Stmt.Print(Expr.Variable(Token(TokenType.IDENTIFIER, "a", null, 2))))
+            )
+        )
     }
 
     @Test

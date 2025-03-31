@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Friedrich von Never <friedrich@fornever.me>
+// SPDX-FileCopyrightText: 2024-2025 Friedrich von Never <friedrich@fornever.me>
 //
 // SPDX-License-Identifier: MIT
 
@@ -47,7 +47,7 @@ sealed class Expr {
     data class Variable(val name: Token) : Expr() {
         override fun <R> accept(visitor: Visitor<R>) = visitor.visitVariable(this)
     }
-    data class AnonymousFunction(val parameters: List<Token>, val body: List<Stmt>): Expr() {
+    data class AnonymousFunction(val params: List<Token>, val body: List<Stmt>): Expr() {
         override fun <R> accept(visitor: Visitor<R>) = visitor.visitAnonymousFunction(this)
     }
 }

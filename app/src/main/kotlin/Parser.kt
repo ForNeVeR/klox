@@ -164,7 +164,15 @@ class Parser(private val tokens: List<Token>) {
     private fun expression() = comma()
     private fun declaration(): Stmt? {
         try {
-            if (match(FUN)) return function("function")
+            if (check(FUN)) {
+                advance()
+                if (check(IDENTIFIER)) {
+                    return function("function")
+                } else {
+                    // step back to put FUN keyword in place
+                    current--
+                }
+            }
             if (match(VAR)) return varDeclaration()
             return statement()
         } catch (_: ParseError) {
@@ -387,6 +395,7 @@ class Parser(private val tokens: List<Token>) {
                 CLASS, FOR, FUN, IF, PRINT, RETURN, VAR, WHILE -> return
                 else -> {}
             }
+
             advance()
         }
     }
