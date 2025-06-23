@@ -3,4 +3,4 @@
 # SPDX-License-Identifier: MIT
 
 [plugins]
-kotlin-jvm = "org.jetbrains.kotlin.jvm:2.1.21"
+kotlin-jvm = "org.jetbrains.kotlin.jvm:2.2.0"
