@@ -22,7 +22,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Download the sources
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
@@ -34,6 +34,6 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out the sources
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: REUSE license check
         uses: fsfe/reuse-action@v6
