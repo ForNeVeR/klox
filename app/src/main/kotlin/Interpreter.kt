@@ -44,7 +44,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         }
     }
 
-    override fun visitBlock(stmt: Stmt.Block): Nothing? {
+    override fun visitBlockStmt(stmt: Stmt.Block): Nothing? {
         executeBlock(stmt.statements, Environment(environment))
         return null
     }
