@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 klox [![Status Zero][status-zero]][andivionian-status-classifier]
 ====
-klox is an interpreter for Lox, a programming language described in [Crafting Interpreters][books.crafting-interpreters].
+Klox is an interpreter for Lox, a programming language described in [Crafting Interpreters][books.crafting-interpreters].
 
 Running
 -------
@@ -18,7 +18,7 @@ Terminate the REPL with `Ctrl+C`.
 
 To run a script from a file:
 ```console
-$ ./gradlew run --args file.lox
+$ ./gradlew run --args "file.lox"
 ```
 
 Documentation
@@ -27,10 +27,9 @@ Documentation
 
 License
 -------
-The project is distributed under the terms of [the MIT license][docs.license]
-(unless a particular file states otherwise).
+This project is distributed under the terms of the [MIT License][docs.license], unless a particular file states otherwise.
 
-The license indication in the project's sources is compliant with the [REUSE specification v3.3][reuse.spec].
+The license information in the project's sources complies with the [REUSE Specification v3.3][reuse.spec].
 
 [andivionian-status-classifier]: https://andivionian.fornever.me/v1/#status-zero-
 [books.crafting-interpreters]: https://craftinginterpreters.com/
