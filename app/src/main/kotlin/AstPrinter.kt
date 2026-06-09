@@ -29,7 +29,7 @@ class AstPrinter : Visitor<String> {
     override fun visitTernaryExpr(expr: Ternary): String =
         parenthesize("?:", expr.condition, expr.ifTrue, expr.ifFalse)
 
-    override fun visitVariable(expr: Variable): String = expr.name.lexeme
+    override fun visitVariableExpr(expr: Variable): String = expr.name.lexeme
     override fun visitAnonymousFunction(expr: AnonymousFunction): String =
         "fun ${expr.params.joinToString()} { [BODY] }"
 
