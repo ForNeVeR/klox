@@ -15,12 +15,94 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         endScope()
     }
 
+    override fun visitExpressionStmt(stmt: Stmt.Expression) {
+        resolve(stmt.expression)
+    }
+
+    override fun visitFunctionStmt(stmt: Stmt.Function) {
+        declare(stmt.name)
+        define(stmt.name)
+        resolveFunction(stmt)
+    }
+
+    override fun visitIfStmt(stmt: Stmt.If) {
+        resolve(stmt.condition)
+        resolve(stmt.thenBranch)
+        if (stmt.elseBranch != null) resolve(stmt.elseBranch)
+    }
+
+    override fun visitPrintStmt(stmt: Stmt.Print) {
+        resolve(stmt.expression)
+    }
+
+    override fun visitReturnStmt(stmt: Stmt.Return) {
+        if (stmt.value != null) resolve(stmt.value)
+    }
+
     override fun visitVarStmt(stmt: Stmt.Var) {
         declare(stmt.name)
         if (stmt.initializer != null) {
             resolve(stmt.initializer)
         }
         define(stmt.name)
+    }
+
+    override fun visitWhileStmt(stmt: Stmt.While) {
+        resolve(stmt.condition)
+        resolve(stmt.body)
+    }
+
+    override fun visitBreakStmt(stmt: Stmt.Break) {
+    }
+
+    override fun visitAssignExpr(expr: Expr.Assign) {
+        resolve(expr.value)
+        resolveLocal(expr, expr.name)
+    }
+
+    override fun visitBinaryExpr(expr: Expr.Binary) {
+        resolve(expr.left)
+        resolve(expr.right)
+    }
+
+    override fun visitCallExpr(expr: Expr.Call) {
+        resolve(expr.callee)
+
+        for (argument in expr.arguments) {
+            resolve(argument)
+        }
+    }
+
+    override fun visitGroupingExpr(expr: Expr.Grouping) {
+        resolve(expr.expression)
+    }
+
+    override fun visitLiteralExpr(expr: Expr.Literal) {
+    }
+
+    override fun visitLogicalExpr(expr: Expr.Logical) {
+        resolve(expr.left)
+        resolve(expr.right)
+    }
+
+    override fun visitUnaryExpr(expr: Expr.Unary) {
+        resolve(expr.right)
+    }
+
+    override fun visitTernaryExpr(expr: Expr.Ternary) {
+        resolve(expr.condition)
+        resolve(expr.ifTrue)
+        resolve(expr.ifFalse)
+    }
+
+    override fun visitAnonymousFunction(expr: Expr.AnonymousFunction) {
+        beginScope()
+        for (parameter in expr.params) {
+            declare(parameter)
+            define(parameter)
+        }
+        resolve(expr.body)
+        endScope()
     }
 
     override fun visitVariableExpr(expr: Expr.Variable) {
@@ -62,4 +144,14 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     private fun resolve(statements: List<Stmt>) = statements.forEach { resolve(it) }
     private fun resolve(stmt: Stmt) = stmt.accept(this)
     private fun resolve(expr: Expr) = expr.accept(this)
+
+    private fun resolveFunction(function: Stmt.Function) {
+        beginScope()
+        for (param in function.params) {
+            declare(param)
+            define(param)
+        }
+        resolve(function.body)
+        endScope()
+    }
 }
