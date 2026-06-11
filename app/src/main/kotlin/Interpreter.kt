@@ -5,6 +5,7 @@
 package me.fornever.klox
 
 import me.fornever.klox.TokenType.*
+import java.util.*
 
 class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
 
@@ -18,7 +19,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         })
     }
     private var environment = globals
-    private val locals = mutableMapOf<Expr, Int>()
+    private val locals = IdentityHashMap<Expr, Int>()
 
     fun interpret(statements: List<Stmt>) {
         try {
