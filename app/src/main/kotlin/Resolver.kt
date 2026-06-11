@@ -134,14 +134,18 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
 
     private fun resolveLocal(expr: Expr, name: Token) {
         for (i in scopes.size - 1 downTo 0) {
-            if (scopes[i][name.lexeme] == true) {
+            if (scopes[i].containsKey(name.lexeme)) {
                 interpreter.resolve(expr, scopes.size - 1 - i)
                 return
             }
         }
     }
 
-    private fun resolve(statements: List<Stmt>) = statements.forEach { resolve(it) }
+    fun resolve(statements: List<Stmt>) {
+        for (it in statements) {
+            resolve(it)
+        }
+    }
     private fun resolve(stmt: Stmt) = stmt.accept(this)
     private fun resolve(expr: Expr) = expr.accept(this)
 

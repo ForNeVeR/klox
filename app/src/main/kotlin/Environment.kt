@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Friedrich von Never <friedrich@fornever.me>
+// SPDX-FileCopyrightText: 2024-2026 Friedrich von Never <friedrich@fornever.me>
 //
 // SPDX-License-Identifier: MIT
 
@@ -15,6 +15,21 @@ class Environment(private val enclosing: Environment? = null) {
     fun define(name: String, value: Any?) {
         declaredVariables.add(name)
         values[name] = value
+    }
+
+    private fun ancestor(distance: Int): Environment {
+        var environment: Environment? = this
+        repeat(distance) {
+            environment = environment?.enclosing
+        }
+        return environment!!
+    }
+
+    fun getAt(distance: Int, name: String): Any? =
+        ancestor(distance).values[name]
+
+    fun assignAt(distance: Int, name: Token, value: Any?) {
+        ancestor(distance).values[name.lexeme] = value
     }
 
     fun get(name: Token): Any? =

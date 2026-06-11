@@ -18,6 +18,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         })
     }
     private var environment = globals
+    private val locals = mutableMapOf<Expr, Int>()
 
     fun interpret(statements: List<Stmt>) {
         try {
@@ -31,6 +32,10 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
 
     private fun evaluate(expr: Expr) = expr.accept(this)
     private fun execute(stmt: Stmt) = stmt.accept(this)
+
+    fun resolve(expr: Expr, depth: Int) {
+        locals[expr] = depth
+    }
 
     internal fun executeBlock(statements: List<Stmt>, environment: Environment) {
         val previous = this.environment
@@ -113,7 +118,14 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
 
     override fun visitAssignExpr(expr: Expr.Assign): Any? {
         val value = evaluate(expr.value)
-        environment.assign(expr.name, value)
+
+        val distance = locals[expr]
+        if (distance != null) {
+            environment.assignAt(distance, expr.name, value)
+        } else {
+            globals.assign(expr.name, value)
+        }
+
         return value
     }
 
@@ -139,7 +151,15 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         }
     }
 
-    override fun visitVariableExpr(expr: Expr.Variable) = environment.get(expr.name)
+    override fun visitVariableExpr(expr: Expr.Variable) = lookUpVariable(expr.name, expr)
+
+    private fun lookUpVariable(name: Token, expr: Expr.Variable): Any? {
+        val distance = locals[expr]
+        if (distance != null) {
+            return environment.getAt(distance, name.lexeme)
+        }
+        return globals.get(name)
+    }
 
     override fun visitAnonymousFunction(expr: Expr.AnonymousFunction) =
         LoxFunction(expr, environment)
