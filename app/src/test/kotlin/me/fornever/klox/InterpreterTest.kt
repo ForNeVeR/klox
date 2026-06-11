@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024-2025 Friedrich von Never <friedrich@fornever.me>
+// SPDX-FileCopyrightText: 2024-2026 Friedrich von Never <friedrich@fornever.me>
 //
 // SPDX-License-Identifier: MIT
 
@@ -69,6 +69,8 @@ class InterpreterTest {
         val result = doTestWithStdIo {
             val statements = assertNotNull(Parser(Scanner(input).scanTokens()).parse())
             val interpreter = Interpreter()
+            val resolver = Resolver(interpreter)
+            resolver.resolve(statements)
             interpreter.interpret(statements)
         }
 

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Friedrich von Never <friedrich@fornever.me>
+// SPDX-FileCopyrightText: 2024-2026 Friedrich von Never <friedrich@fornever.me>
 //
 // SPDX-License-Identifier: MIT
 
@@ -90,6 +90,9 @@ object Lox {
 
         // Stop if there was a syntax error.
         if (hadError) return
+
+        val resolver = Resolver(interpreter)
+        resolver.resolve(statements)
 
         interpreter.interpret(statements)
     }
