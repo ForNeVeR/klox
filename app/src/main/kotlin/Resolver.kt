@@ -152,7 +152,11 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     private fun resolve(stmt: Stmt) = stmt.accept(this)
     private fun resolve(expr: Expr) = expr.accept(this)
 
-    private fun resolveFunction(params: List<Token>, body: List<Stmt>, type: FunctionType) {
+    private fun resolveFunction(
+        params: List<Token>,
+        body: List<Stmt>,
+        @Suppress("SameParameterValue") // might improve in the future
+        type: FunctionType) {
         val enclosingFunction = currentFunction
         currentFunction = type
 

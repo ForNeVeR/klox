@@ -75,7 +75,7 @@ object Lox {
         try {
             silent = true
             result = parser.parseExpression()
-        } catch (e: Parser.ParseError) {
+        } catch (_: Parser.ParseError) {
             // ignore
         } finally {
             silent = false
