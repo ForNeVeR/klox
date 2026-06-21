@@ -8,6 +8,7 @@ import java.util.*
 
 class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.Visitor<Unit> {
     private val scopes = Stack<MutableMap<String, Boolean>>()
+    private var currentFunction = FunctionType.NONE
 
     override fun visitBlockStmt(stmt: Stmt.Block) {
         beginScope()
@@ -22,7 +23,7 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     override fun visitFunctionStmt(stmt: Stmt.Function) {
         declare(stmt.name)
         define(stmt.name)
-        resolveFunction(stmt)
+        resolveFunction(stmt.params, stmt.body, FunctionType.FUNCTION)
     }
 
     override fun visitIfStmt(stmt: Stmt.If) {
@@ -36,6 +37,10 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     }
 
     override fun visitReturnStmt(stmt: Stmt.Return) {
+        if (currentFunction == FunctionType.NONE) {
+            Lox.error(stmt.keyword, "Can't return from top-level code.")
+        }
+
         if (stmt.value != null) resolve(stmt.value)
     }
 
@@ -96,13 +101,7 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     }
 
     override fun visitAnonymousFunction(expr: Expr.AnonymousFunction) {
-        beginScope()
-        for (parameter in expr.params) {
-            declare(parameter)
-            define(parameter)
-        }
-        resolve(expr.body)
-        endScope()
+        resolveFunction(expr.params, expr.body, FunctionType.FUNCTION)
     }
 
     override fun visitVariableExpr(expr: Expr.Variable) {
@@ -124,6 +123,10 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         if (scopes.isEmpty()) return
 
         val scope = scopes.peek()
+        if (scope.containsKey(name.lexeme)) {
+            Lox.error(name, "Already a variable with this name in this scope.")
+        }
+
         scope[name.lexeme] = false
     }
 
@@ -149,13 +152,23 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     private fun resolve(stmt: Stmt) = stmt.accept(this)
     private fun resolve(expr: Expr) = expr.accept(this)
 
-    private fun resolveFunction(function: Stmt.Function) {
+    private fun resolveFunction(params: List<Token>, body: List<Stmt>, type: FunctionType) {
+        val enclosingFunction = currentFunction
+        currentFunction = type
+
         beginScope()
-        for (param in function.params) {
-            declare(param)
-            define(param)
+        for (parameter in params) {
+            declare(parameter)
+            define(parameter)
         }
-        resolve(function.body)
+        resolve(body)
         endScope()
+
+        currentFunction = enclosingFunction
+    }
+
+    private enum class FunctionType {
+        NONE,
+        FUNCTION
     }
 }
