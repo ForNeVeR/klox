@@ -117,11 +117,9 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     }
     private fun endScope() {
         val scope = scopes.pop()
-        if (scope != null) {
-            for ((name, variableInfo) in scope) {
-                if (!variableInfo.isUsed) {
-                    Lox.error(variableInfo.declaration, "Variable '${name}' is never used.")
-                }
+        for ((name, variableInfo) in scope) {
+            if (!variableInfo.isUsed) {
+                Lox.error(variableInfo.declaration, "Variable '${name}' is never used.")
             }
         }
     }
