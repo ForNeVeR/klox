@@ -39,6 +39,22 @@ class InterpreterTest {
         });
     """.trimIndent(), "1\n2\n3\n")
 
+    @Test
+    fun `error when a variable is unused`() = assertResolveError("""
+        fun test() {
+            var a = 1;
+        }
+    """.trimIndent(), "[line 2] Error at 'a': Variable 'a' is never used.\n")
+
+    @Test
+    fun `no error when a variable is used`() = assertOutput("""
+        fun test() {
+            var a = 1;
+            print a;
+        }
+        test();
+    """.trimIndent(), "1\n")
+
     @Suppress("SameParameterValue")
     private fun <T> assertInterpretation(input: String, expectedResult: T) {
         val result = doTestWithStdIo {
@@ -51,6 +67,19 @@ class InterpreterTest {
 
         assertFalse(result.hadError)
         assertEquals("", result.stdErr)
+    }
+
+    @Suppress("SameParameterValue")
+    private fun assertResolveError(input: String, error: String) {
+        val result = doTestWithStdIo {
+            val statements = assertNotNull(Parser(Scanner(input).scanTokens()).parse())
+            val interpreter = Interpreter()
+            val resolver = Resolver(interpreter)
+            resolver.resolve(statements)
+        }
+
+        assertTrue(result.hadError)
+        assertEquals(error, result.stdErr)
     }
 
     @Suppress("SameParameterValue")

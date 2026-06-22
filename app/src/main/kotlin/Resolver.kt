@@ -7,7 +7,7 @@ package me.fornever.klox
 import java.util.*
 
 class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.Visitor<Unit> {
-    private val scopes = Stack<MutableMap<String, Boolean>>()
+    private val scopes = Stack<MutableMap<String, VariableInfo>>()
     private var currentFunction = FunctionType.NONE
 
     override fun visitBlockStmt(stmt: Stmt.Block) {
@@ -105,7 +105,7 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     }
 
     override fun visitVariableExpr(expr: Expr.Variable) {
-        if (!scopes.isEmpty() && scopes.peek()[expr.name.lexeme] == false) {
+        if (!scopes.isEmpty() && scopes.peek()[expr.name.lexeme]?.isDefined == false) {
             Lox.error(expr.name, "Can't read local variable in its own initializer.")
         }
 
@@ -116,7 +116,14 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         scopes.push(mutableMapOf())
     }
     private fun endScope() {
-        scopes.pop()
+        val scope = scopes.pop()
+        if (scope != null) {
+            for ((name, variableInfo) in scope) {
+                if (!variableInfo.isUsed) {
+                    Lox.error(variableInfo.declaration, "Variable '${name}' is never used.")
+                }
+            }
+        }
     }
 
     private fun declare(name: Token) {
@@ -127,17 +134,22 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
             Lox.error(name, "Already a variable with this name in this scope.")
         }
 
-        scope[name.lexeme] = false
+        scope[name.lexeme] = VariableInfo(declaration = name, isUsed = false, isDefined = false)
     }
 
     private fun define(name: Token) {
         if (scopes.isEmpty()) return
-        scopes.peek()[name.lexeme] = true
+        val scope = scopes.peek()
+        val variableInfo = scope[name.lexeme]!!
+        scope[name.lexeme] = variableInfo.copy(isDefined = true)
     }
 
     private fun resolveLocal(expr: Expr, name: Token) {
         for (i in scopes.size - 1 downTo 0) {
-            if (scopes[i].containsKey(name.lexeme)) {
+            val scope = scopes[i]
+            val variableInfo = scope[name.lexeme]
+            if (variableInfo != null) {
+                scope[name.lexeme] = variableInfo.copy(isUsed = true)
                 interpreter.resolve(expr, scopes.size - 1 - i)
                 return
             }
@@ -175,4 +187,7 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         NONE,
         FUNCTION
     }
+
+    private data class VariableInfo(val declaration: Token, val isUsed: Boolean, val isDefined: Boolean)
 }
+
