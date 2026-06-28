@@ -90,7 +90,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
     override fun visitVarStmt(stmt: Stmt.Var): Nothing? {
         val name = stmt.name.lexeme
         val initializer = stmt.initializer
-        val value =  initializer?.let(::evaluate)
+        val value = initializer?.let(::evaluate)
         define(name, value)
 
         return null
@@ -155,7 +155,13 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         if (coords != null) {
             return environment!!.getAt(coords)
         }
-        return globals[name.lexeme]
+
+        val nameString = name.lexeme
+        if (globals.containsKey(nameString)) {
+            return globals[nameString]
+        }
+
+        throw RuntimeError(name, "Undefined variable '${nameString}'.")
     }
 
     override fun visitAnonymousFunction(expr: Expr.AnonymousFunction) =
