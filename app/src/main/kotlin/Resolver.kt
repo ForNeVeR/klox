@@ -201,7 +201,7 @@ private class Scope {
 
     fun declareVariable(name: Token) {
         val nameString = name.lexeme
-        if (variablesByName.containsKey(nameString)) error("Variable already declared: \"$nameString\".")
+        if (variablesByName.containsKey(nameString)) return // error should already be detected by the called
         variablesByName[nameString] = VariableInfo(
             name,
             variablesByName.size,
