@@ -26,12 +26,6 @@ class Environment(private val enclosing: Environment? = null) {
     fun assignAt(coords: VariableCoordinates, value: Any?) {
         ancestor(coords.distance).values[coords.variableId] = value
     }
-
-    fun get(name: Token, variableId: Int): Any? =
-        values.getOrElse(variableId) {
-            if (enclosing != null) return enclosing.get(name, variableId)
-            throw RuntimeError(name, "Undefined variable '${name.lexeme}'.")
-        }
 }
 
 class VariableCoordinates(val distance: Int, val variableId: Int)
