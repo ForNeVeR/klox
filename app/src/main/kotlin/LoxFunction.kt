@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024-2025 Friedrich von Never <friedrich@fornever.me>
+// SPDX-FileCopyrightText: 2024-2026 Friedrich von Never <friedrich@fornever.me>
 //
 // SPDX-License-Identifier: MIT
 
@@ -8,18 +8,18 @@ class LoxFunction private constructor(
     private val name: String,
     private val params: List<Token>,
     private val body: List<Stmt>,
-    private val closure: Environment
+    private val closure: Environment?
 ) : LoxCallable {
 
-    constructor(declaration: Stmt.Function, closure: Environment) : this(
+    constructor(declaration: Stmt.Function, closure: Environment?) : this(
         declaration.name.lexeme,
         declaration.params,
         declaration.body,
         closure
     )
 
-    constructor(declaration: Expr.AnonymousFunction, closure: Environment) : this(
-        "anonymous",
+    constructor(declaration: Expr.AnonymousFunction, closure: Environment?) : this(
+        "<anonymous>",
         declaration.params,
         declaration.body,
         closure
@@ -29,8 +29,8 @@ class LoxFunction private constructor(
 
     override fun call(interpreter: Interpreter, arguments: List<Any?>): Any? {
         val environment = Environment(closure)
-        for (i in 0 until params.size) {
-            environment.define(params[i].lexeme, arguments[i])
+        for (i in params.indices) {
+            environment.define(arguments[i])
         }
 
         try {

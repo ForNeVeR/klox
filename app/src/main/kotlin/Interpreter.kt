@@ -9,8 +9,8 @@ import java.util.*
 
 class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
 
-    internal val globals = Environment().apply {
-        define("clock", object : LoxCallable {
+    internal val globals = mutableMapOf<String, Any?>().apply {
+        put("clock", object : LoxCallable {
             override val arity = 0
             override fun call(interpreter: Interpreter, arguments: List<Any?>): Double {
                 return System.currentTimeMillis() / 1000.0
@@ -18,8 +18,8 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
             override fun toString() = "<native fn>"
         })
     }
-    private var environment = globals
-    private val locals = IdentityHashMap<Expr, Int>()
+    private var environment: Environment? = null
+    private val locals = IdentityHashMap<Expr, VariableCoordinates>()
 
     fun interpret(statements: List<Stmt>) {
         try {
@@ -34,8 +34,8 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
     private fun evaluate(expr: Expr) = expr.accept(this)
     private fun execute(stmt: Stmt) = stmt.accept(this)
 
-    fun resolve(expr: Expr, depth: Int) {
-        locals[expr] = depth
+    fun resolve(expr: Expr, coords: VariableCoordinates) {
+        locals[expr] = coords
     }
 
     internal fun executeBlock(statements: List<Stmt>, environment: Environment) {
@@ -62,7 +62,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
 
     override fun visitFunctionStmt(stmt: Stmt.Function): Nothing? {
         val function = LoxFunction(stmt, environment)
-        environment.define(stmt.name.lexeme, function)
+        define(stmt.name.lexeme, function)
         return null
     }
 
@@ -90,12 +90,8 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
     override fun visitVarStmt(stmt: Stmt.Var): Nothing? {
         val name = stmt.name.lexeme
         val initializer = stmt.initializer
-        if (initializer != null) {
-            val value = evaluate(initializer)
-            environment.define(name, value)
-        } else {
-            environment.declare(name)
-        }
+        val value =  initializer?.let(::evaluate)
+        define(name, value)
 
         return null
     }
@@ -120,11 +116,11 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
     override fun visitAssignExpr(expr: Expr.Assign): Any? {
         val value = evaluate(expr.value)
 
-        val distance = locals[expr]
-        if (distance != null) {
-            environment.assignAt(distance, expr.name, value)
+        val coords = locals[expr]
+        if (coords != null) {
+            environment!!.assignAt(coords, value)
         } else {
-            globals.assign(expr.name, value)
+            globals[expr.name.lexeme] = value
         }
 
         return value
@@ -155,11 +151,11 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
     override fun visitVariableExpr(expr: Expr.Variable) = lookUpVariable(expr.name, expr)
 
     private fun lookUpVariable(name: Token, expr: Expr.Variable): Any? {
-        val distance = locals[expr]
-        if (distance != null) {
-            return environment.getAt(distance, name.lexeme)
+        val coords = locals[expr]
+        if (coords != null) {
+            return environment!!.getAt(coords)
         }
-        return globals.get(name)
+        return globals[name.lexeme]
     }
 
     override fun visitAnonymousFunction(expr: Expr.AnonymousFunction) =
@@ -238,5 +234,11 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
             else text
         }
         else -> obj.toString()
+    }
+
+    private fun define(name: String, value: Any?) {
+        val environment = environment
+        if (environment != null) environment.define(value)
+        else globals[name] = value
     }
 }

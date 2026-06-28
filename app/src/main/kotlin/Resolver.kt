@@ -7,7 +7,7 @@ package me.fornever.klox
 import java.util.*
 
 class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.Visitor<Unit> {
-    private val scopes = Stack<MutableMap<String, VariableInfo>>()
+    private val scopes = Stack<Scope>()
     private var currentFunction = FunctionType.NONE
 
     override fun visitBlockStmt(stmt: Stmt.Block) {
@@ -105,7 +105,7 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     }
 
     override fun visitVariableExpr(expr: Expr.Variable) {
-        if (!scopes.isEmpty() && scopes.peek()[expr.name.lexeme]?.isDefined == false) {
+        if (!scopes.isEmpty() && scopes.peek().variableByName(expr.name.lexeme)?.isDefined == false) {
             Lox.error(expr.name, "Can't read local variable in its own initializer.")
         }
 
@@ -113,11 +113,11 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     }
 
     private fun beginScope() {
-        scopes.push(mutableMapOf())
+        scopes.push(Scope())
     }
     private fun endScope() {
         val scope = scopes.pop()
-        for ((name, variableInfo) in scope) {
+        for ((name, variableInfo) in scope.allVariables()) {
             if (!variableInfo.isUsed) {
                 Lox.error(variableInfo.declaration, "Variable '${name}' is never used.")
             }
@@ -128,27 +128,33 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         if (scopes.isEmpty()) return
 
         val scope = scopes.peek()
-        if (scope.containsKey(name.lexeme)) {
+        if (scope.variableByName(name.lexeme) != null) {
             Lox.error(name, "Already a variable with this name in this scope.")
         }
 
-        scope[name.lexeme] = VariableInfo(declaration = name, isUsed = false, isDefined = false)
+        scope.declareVariable(name)
     }
 
     private fun define(name: Token) {
         if (scopes.isEmpty()) return
         val scope = scopes.peek()
-        val variableInfo = scope[name.lexeme]!!
-        scope[name.lexeme] = variableInfo.copy(isDefined = true)
+        val variableInfo = scope.variableByName(name.lexeme)!!
+        scope.defineVariable(variableInfo)
     }
 
     private fun resolveLocal(expr: Expr, name: Token) {
         for (i in scopes.size - 1 downTo 0) {
             val scope = scopes[i]
-            val variableInfo = scope[name.lexeme]
+            val variableInfo = scope.variableByName(name.lexeme)
             if (variableInfo != null) {
-                scope[name.lexeme] = variableInfo.copy(isUsed = true)
-                interpreter.resolve(expr, scopes.size - 1 - i)
+                scope.markAsUsed(variableInfo)
+                interpreter.resolve(
+                    expr,
+                    VariableCoordinates(
+                        distance = scopes.size - 1 - i,
+                        variableId = variableInfo.variableId
+                    )
+                )
                 return
             }
         }
@@ -185,7 +191,36 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         NONE,
         FUNCTION
     }
-
-    private data class VariableInfo(val declaration: Token, val isUsed: Boolean, val isDefined: Boolean)
 }
 
+private class Scope {
+    val variablesByName = mutableMapOf<String, VariableInfo>()
+
+    fun variableByName(name: String): VariableInfo? = variablesByName[name]
+    fun allVariables(): Map<String, VariableInfo> = variablesByName
+
+    fun declareVariable(name: Token) {
+        val nameString = name.lexeme
+        if (variablesByName.containsKey(nameString)) error("Variable already declared: \"$nameString\".")
+        variablesByName[nameString] = VariableInfo(
+            name,
+            variablesByName.size,
+            isUsed = false,
+            isDefined = false
+        )
+    }
+
+    fun defineVariable(variableInfo: VariableInfo) {
+        variablesByName[variableInfo.declaration.lexeme] = variableInfo.copy(isDefined = true)
+    }
+    fun markAsUsed(variableInfo: VariableInfo) {
+        variablesByName[variableInfo.declaration.lexeme] = variableInfo.copy(isUsed = true)
+    }
+}
+
+private data class VariableInfo(
+    val declaration: Token,
+    val variableId: Int,
+    val isUsed: Boolean,
+    val isDefined: Boolean
+)
