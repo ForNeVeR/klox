@@ -5,16 +5,11 @@
 package me.fornever.klox
 
 class Environment(private val enclosing: Environment? = null) {
-    private val declaredVariables = mutableSetOf<String>()
-    private val values = mutableMapOf<String, Any?>()
+    private val values = mutableListOf<Any?>()
 
-    fun declare(name: String) {
-        declaredVariables.add(name)
-    }
-
-    fun define(name: String, value: Any?) {
-        declaredVariables.add(name)
-        values[name] = value
+    fun define(value: Any?): Int {
+        values.add(value)
+        return values.size - 1
     }
 
     private fun ancestor(distance: Int): Environment {
@@ -25,31 +20,18 @@ class Environment(private val enclosing: Environment? = null) {
         return environment!!
     }
 
-    fun getAt(distance: Int, name: String): Any? =
-        ancestor(distance).values[name]
+    fun getAt(coords: VariableCoordinates): Any? =
+        ancestor(coords.distance).values[coords.variableId]
 
-    fun assignAt(distance: Int, name: Token, value: Any?) {
-        ancestor(distance).values[name.lexeme] = value
+    fun assignAt(coords: VariableCoordinates, value: Any?) {
+        ancestor(coords.distance).values[coords.variableId] = value
     }
 
-    fun get(name: Token): Any? =
-        values.getOrElse(name.lexeme) {
-            if (enclosing != null) return enclosing.get(name)
+    fun get(name: Token, variableId: Int): Any? =
+        values.getOrElse(variableId) {
+            if (enclosing != null) return enclosing.get(name, variableId)
             throw RuntimeError(name, "Undefined variable '${name.lexeme}'.")
         }
-
-    fun assign(name: Token, value: Any?) {
-        val varName = name.lexeme
-        if (declaredVariables.contains(varName) || values.containsKey(varName)) {
-            values[varName] = value
-            return
-        }
-
-        if (enclosing != null) {
-            enclosing.assign(name, value)
-            return
-        }
-
-        throw RuntimeError(name, "Undefined variable '${varName}'.")
-    }
 }
+
+class VariableCoordinates(val distance: Int, val variableId: Int)
