@@ -120,7 +120,11 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Nothing?> {
         if (coords != null) {
             environment!!.assignAt(coords, value)
         } else {
-            globals[expr.name.lexeme] = value
+            if (globals.containsKey(expr.name.lexeme)) {
+                globals[expr.name.lexeme] = value
+            } else {
+                throw RuntimeError(expr.name, "Undefined variable '${expr.name.lexeme}'.")
+            }
         }
 
         return value
